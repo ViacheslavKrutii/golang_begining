@@ -20,10 +20,22 @@ type inventory struct {
 
 type character struct {
 	name           string
+	areYouKing     bool
 	hp             int
 	hunger         int
 	inventory      inventory
 	curentLocation location
+}
+
+func (c *character) takeDamage() {
+	c.hp -= 1
+}
+func (c *character) eat() {
+	c.hunger += 1
+}
+
+func (c *character) becameTheKing() {
+	c.areYouKing = true
 }
 
 type location struct {
