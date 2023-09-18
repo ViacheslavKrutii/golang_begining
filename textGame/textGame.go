@@ -1,27 +1,31 @@
 package textgame
 
-type weapon struct{
+type weapon struct {
 	string
 }
 
-type tool struct{
+type tool struct {
 	string
 }
 
-type food struct{
+type food struct {
 	string
 }
 
-type inventory struct{
-	weapons [] weapon
-	tools []tool
-	food [] food
+type inventory struct {
+	weapons []weapon
+	tools   []tool
+	food    []food
 }
 
-type palyer struct {
+type character struct {
+	name           string
+	hp             int
+	hunger         int
+	inventory      inventory
+	curentLocation location
+}
+
+type location struct {
 	name string
-	hp int
-	hunger int
-	inventory struct
 }
-
