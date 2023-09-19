@@ -14,12 +14,27 @@ var arrangeDuel = action{"You try arrange a duel", []string{"Arrange a duel with
 var chopOaks = action{"You try to chop oaks", []string{"Chop huge oak", "Chop small oak"}}
 var hunt = action{"You try to hunt", []string{"Hunt a hare", "Hunt a deer"}}
 
-var castle = location{"Castle", []action{talkGuardians, talkGuardians}}
+var castle = location{"Castle", []action{talkToKing, talkGuardians}}
 var centralSquare = location{"Central Square", []action{cadge, arrangeDuel}}
 var forest = location{"Forest", []action{chopOaks, hunt}}
 
 //character actions
 func whatToDo(c *character) {
+	var input string
+	curentEvents := make([]string, 0)
+	for _, v := range c.curentLocation.actions {
+		curentEvents = append(curentEvents, v.discroption)
+	}
+	fmt.Printf("Your location is %s\nWhat do you want?\n", c.curentLocation.name)
+	for i, item := range curentEvents {
+		fmt.Printf("%d) %s\n", i+1, item)
+	}
+	fmt.Scan(&input)
+	switch input {
+	case "1":
+
+	case "2":
+	}
 
 }
 
