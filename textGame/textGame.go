@@ -38,6 +38,12 @@ func (c *character) becameTheKing() {
 	c.areYouKing = true
 }
 
+type action struct {
+	discroption string
+	choise      []string
+}
+
 type location struct {
-	name string
+	name    string
+	actions []action
 }

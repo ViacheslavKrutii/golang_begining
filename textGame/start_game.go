@@ -2,92 +2,48 @@ package textgame
 
 import "fmt"
 
-//inititalisation locations
-var castle = location{"Castle"}
-var centralSquare = location{"Central Square"}
-var forest = location{"Forest"}
+//Castle actions
+var talkToKing = action{"You try to talk with King", []string{"Ask for lands", "Tell about myself"}}
+var talkGuardians = action{"You try to talk with Guardiavns", []string{"Information about King", "Ask for job"}}
+
+//Central Square actions
+var cadge = action{"You try to cadge some money", []string{"Shout to the whole square", "Sit with outstretched arm"}}
+var arrangeDuel = action{"You try arrange a duel", []string{"Arrange a duel with knight", "Arrange a duel with chicken"}}
+
+//Forest actions
+var chopOaks = action{"You try to chop oaks", []string{"Chop huge oak", "Chop small oak"}}
+var hunt = action{"You try to hunt", []string{"Hunt a hare", "Hunt a deer"}}
+
+var castle = location{"Castle", []action{talkGuardians, talkGuardians}}
+var centralSquare = location{"Central Square", []action{cadge, arrangeDuel}}
+var forest = location{"Forest", []action{chopOaks, hunt}}
 
 //character actions
 func whatToDo(c *character) {
-	var action1 string
-	var action2 string
-	var answer uint
-
-	switch c.curentLocation {
-	case castle:
-		action1 = "Kill The King"
-		action2 = "Ask for a job"
-	case forest:
-		action1 = "Chop oaks"
-		action2 = "Hunt"
-	//Central Square
-	default:
-		action1 = "Cadge"
-		action2 = "Rob"
-
-	}
-loop:
-	fmt.Printf("What to do?\n1)%s\n2)%s\n", action1, action2)
-
-	fmt.Scanln(&answer)
-
-	if answer == 1 {
-		switch action1 {
-		case "Kill The King":
-			fmt.Println("Guardians smash you. You are died.")
-			c.hp = 0
-		case "Chop oaks":
-			fmt.Println("You are The King ... But King of lumberjacks")
-		//"Cadge"
-		default:
-			c.takeDamage()
-
-		}
-	} else if answer == 2 {
-		switch action2 {
-		case "Ask for a job":
-			fmt.Println("You are new king")
-			c.becameTheKing()
-		case "Hunt":
-			fmt.Println("You are hunt the rabbit but he bite you")
-			c.takeDamage()
-			c.eat()
-
-		//"Rob"
-		default:
-			c.takeDamage()
-
-		}
-	} else {
-		fmt.Println("Try again.1")
-		goto loop
-	}
 
 }
 
 func whereToGo(c *character) {
-	var location uint
-	var answer string
-	back := c.curentLocation
+	var input string
+	fmt.Printf("Your location is %s\n", c.curentLocation.name)
 loop:
-	fmt.Println("Where to go?\n1)Castle\n2)CentralSquare\n3)Forest")
-	fmt.Scanln(&location)
-	switch location {
-	case 1:
+	fmt.Println("Where to go?\n1)Castle\n2)Forest\n3)CentralSquare")
+	fmt.Scan(&input)
+	switch input {
+	case "1":
 		c.curentLocation = castle
-	case 2:
-		c.curentLocation = centralSquare
-	case 3:
+		fmt.Printf("You arive to %s\n", c.curentLocation.name)
+	case "2":
 		c.curentLocation = forest
+		fmt.Printf("You arive to %s\n", c.curentLocation.name)
+	case "3":
+		c.curentLocation = centralSquare
+		fmt.Printf("You arive to %s\n", c.curentLocation.name)
 	default:
-		fmt.Println("Try again.")
+		fmt.Println("Try again")
 		goto loop
 	}
-	fmt.Println("Are you shure?")
-	fmt.Scanln(&answer)
-	if answer == "no" {
-		c.curentLocation = back
-	}
+
 }
 
 //choose to do or to go
