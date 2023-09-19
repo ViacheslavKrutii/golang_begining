@@ -30,6 +30,11 @@ type character struct {
 func (c *character) takeDamage() {
 	c.hp -= 1
 }
+
+func (c *character) heal() {
+	c.hp -= 1
+}
+
 func (c *character) eat() {
 	c.hunger += 1
 }
@@ -38,12 +43,18 @@ func (c *character) becameTheKing() {
 	c.areYouKing = true
 }
 
-type action struct {
+type event struct {
 	discroption string
-	choise      []string
+	action      string
+	nextEvent   *event
 }
 
 type location struct {
-	name    string
-	actions []action
+	name   string
+	events []event
 }
+
+const takeDamage = "takeDamage"
+const heal = "heal"
+const eat = "eat"
+const becameTheKing = "becameTheKing"
