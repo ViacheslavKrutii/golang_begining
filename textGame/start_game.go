@@ -56,27 +56,36 @@ loop:
 
 	if c.curentLocation.name == "Castle" && input1 == "1" && input2 == "1" {
 		c.takeDamage()
+		fmt.Println("King angry.\nKing hit you.")
 	} else if c.curentLocation.name == "Castle" && input1 == "1" && input2 == "2" {
+		fmt.Println("King The king is delighted with the story of your life.")
+		fmt.Println("The king transfers his powers to you!")
 		c.becameTheKing()
 	} else if c.curentLocation.name == "Castle" && input1 == "2" && input2 == "1" {
-		c.takeDamage()
+		fmt.Println("*Story about king*")
 	} else if c.curentLocation.name == "Castle" && input1 == "2" && input2 == "2" {
-		c.takeDamage()
+		fmt.Println("We don't have a job for you.")
 	} else if c.curentLocation.name == "Central Square" && input1 == "1" && input2 == "1" {
+		fmt.Println("The merchant throws an egg at you.")
 		c.takeDamage()
 	} else if c.curentLocation.name == "Central Square" && input1 == "1" && input2 == "2" {
+		fmt.Println("Passer-by gives you bread.")
 		c.eat()
 	} else if c.curentLocation.name == "Central Square" && input1 == "2" && input2 == "1" {
+		fmt.Println("Knight accepts your challenge.")
 		c.takeDamage()
 	} else if c.curentLocation.name == "Central Square" && input1 == "2" && input2 == "2" {
+		fmt.Println("The owner of the chicken hits you with a broom.")
 		c.takeDamage()
 	} else if c.curentLocation.name == "Forest" && input1 == "1" && input2 == "1" {
-		c.takeDamage()
+		fmt.Println("You became the king ...\nBut the king of lumberjacks.")
 	} else if c.curentLocation.name == "Forest" && input1 == "1" && input2 == "2" {
-		c.takeDamage()
+		fmt.Println("You chop small oak.")
 	} else if c.curentLocation.name == "Forest" && input1 == "2" && input2 == "1" {
+		fmt.Println("You hunted a hare.")
 		c.eat()
 	} else if c.curentLocation.name == "Forest" && input1 == "2" && input2 == "2" {
+		fmt.Println("The deer injured you.")
 		c.takeDamage()
 	} else {
 		fmt.Println("Try again!")
