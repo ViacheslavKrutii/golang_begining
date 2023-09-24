@@ -1,9 +1,10 @@
 package main
 
 import (
-	textRedactor "Proj/HomeWork/golang_begining/arraysAndSlises"
+	"Proj/HomeWork/golang_begining/arraysAndSlises/students"
 )
 
 func main() {
-	textRedactor.TextRedactor()
+	evaluations := []float64{5.5, 2.9}
+	students.Average(evaluations)
 }
