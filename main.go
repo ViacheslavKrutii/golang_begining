@@ -1,7 +1,9 @@
 package main
 
-import textgame "Proj/HomeWork/golang_begining/textGame"
+import (
+	textRedactor "Proj/HomeWork/golang_begining/arraysAndSlises"
+)
 
 func main() {
-	textgame.Start_game()
+	textRedactor.TextRedactor()
 }
