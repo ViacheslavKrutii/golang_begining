@@ -27,29 +27,7 @@ func clearboard(b board) board {
 	return b
 }
 
-func xsturn(b board) {
-	var input string
-enter:
-
-	fmt.Scan(&input)
-
-	intInput, err := strconv.Atoi(input)
-	if err != nil {
-		fmt.Printf("Error:%v\nTry again.\n", err)
-		goto enter
-	}
-	if b[intInput] == 0 {
-		b[intInput] = cell(xsmarc)
-	} else if b[intInput] == 1 || b[intInput] == 2 {
-		fmt.Println("Cell is bussy. Try again")
-		goto enter
-	} else {
-		fmt.Println("Try again!")
-		goto enter
-	}
-}
-
-func osturn(b board) {
+func turn(b board, mark uint8) {
 	var input string
 enter:
 	fmt.Scan(&input)
@@ -60,7 +38,7 @@ enter:
 		goto enter
 	}
 	if b[intInput] == 0 {
-		b[intInput] = cell(osmarc)
+		b[intInput] = cell(mark)
 	} else if b[intInput] == 1 || b[intInput] == 2 {
 		fmt.Println("Cell is bussy. Try again")
 		goto enter
@@ -171,7 +149,7 @@ func Xsosgame() {
 	var player uint
 	for player == 0 {
 		drawBoard(b)
-		xsturn(b)
+		turn(b, xsmarc)
 		drawBoard(b)
 		if whoWin(b) == cell(xsmarc) {
 			fmt.Println("Xs win!")
@@ -181,7 +159,7 @@ func Xsosgame() {
 			fmt.Println("Tie")
 			break
 		}
-		osturn(b)
+		turn(b, osmarc)
 		drawBoard(b)
 		if whoWin(b) == cell(osmarc) {
 			fmt.Println("Os win!")
