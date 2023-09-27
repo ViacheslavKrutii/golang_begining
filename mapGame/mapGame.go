@@ -70,112 +70,57 @@ enter:
 	}
 }
 
-// does xs win?
-func checkXsWin(b board) bool {
-
-	//first raw
-	if b[1] == 2 && b[2] == 2 && b[3] == 2 {
-
-		return true
+func checkRaw(b board) (player cell) {
+	for i := 1; i <= 7; i += 3 {
+		if b[i] != b[i+1] {
+			continue
+		}
+		if b[i] != b[i+2] {
+			continue
+		}
+		return b[i]
 	}
-
-	//second raw
-	if b[4] == 2 && b[5] == 2 && b[6] == 2 {
-
-		return true
-	}
-
-	//third raw
-	if b[7] == 2 && b[8] == 2 && b[9] == 2 {
-
-		return true
-	}
-
-	//first column
-	if b[1] == 2 && b[4] == 2 && b[7] == 2 {
-
-		return true
-	}
-
-	//second column
-	if b[2] == 2 && b[5] == 2 && b[8] == 2 {
-
-		return true
-	}
-
-	//third column
-	if b[3] == 2 && b[6] == 2 && b[9] == 2 {
-
-		return true
-	}
-
-	//first diagonal
-	if b[1] == 2 && b[5] == 2 && b[9] == 2 {
-
-		return true
-	}
-
-	//second diagonal
-	if b[3] == 2 && b[5] == 2 && b[7] == 2 {
-
-		return true
-	}
-
-	return false
+	return 0
 }
 
-// does os win?
-func checkOsWin(b board) bool {
+func checkColumn(b board) (player cell) {
+	for i := 1; i <= 3; i += 1 {
+		if b[i] != b[i+3] {
+			continue
+		}
+		if b[i] != b[i+6] {
+			continue
+		}
+		return b[i]
+	}
+	return 0
+}
 
-	//first raw
-	if b[1] == 1 && b[2] == 1 && b[3] == 1 {
+func checkDigonal(b board) (player cell) {
+	for i := 1; i <= 3; i += 2 {
+		if b[i] != b[i+4] {
+			continue
+		}
+		if b[i] != b[i+8] {
+			continue
+		}
+		return b[i]
+	}
+	return 0
+}
 
-		return true
+func whoWin(b board) (player cell) {
+	switch {
+	case checkColumn(b) != 0:
+		return checkColumn(b)
+	case checkRaw(b) != 0:
+		return checkRaw(b)
+	case checkDigonal(b) != 0:
+		return checkDigonal(b)
+	default:
+		return 0
 	}
 
-	//second raw
-	if b[4] == 1 && b[5] == 1 && b[6] == 1 {
-
-		return true
-	}
-
-	//third raw
-	if b[7] == 1 && b[8] == 1 && b[9] == 1 {
-
-		return true
-	}
-
-	//first column
-	if b[1] == 1 && b[4] == 1 && b[7] == 1 {
-
-		return true
-	}
-
-	//second column
-	if b[2] == 1 && b[5] == 1 && b[8] == 1 {
-
-		return true
-	}
-
-	//third column
-	if b[3] == 1 && b[6] == 1 && b[9] == 1 {
-
-		return true
-	}
-
-	//first diagonal
-	if b[1] == 1 && b[5] == 1 && b[9] == 1 {
-
-		return true
-	}
-
-	//second diagonal
-	if b[3] == 1 && b[5] == 1 && b[7] == 1 {
-
-		return true
-	}
-
-	return false
 }
 
 func isLastTurn(b board) bool {
@@ -190,7 +135,7 @@ func isLastTurn(b board) bool {
 
 // Tie?
 func checkTie(b board) bool {
-	if isLastTurn(b) && !checkOsWin(b) && !checkXsWin(b) {
+	if isLastTurn(b) && whoWin(b) == 0 {
 		return true
 	}
 	return false
@@ -218,18 +163,17 @@ func drawBoard(b board) {
 	fmt.Println("-----------")
 	fmt.Printf(" %v | %v | %v\n", fb[7], fb[8], fb[9])
 	fmt.Println()
-	fmt.Println()
-	fmt.Println()
 }
 
 func Xsosgame() {
 	b := Makeboard()
 	b = clearboard(b)
-	for s := true; s; {
+	var player uint
+	for player == 0 {
 		drawBoard(b)
 		xsturn(b)
 		drawBoard(b)
-		if checkXsWin(b) {
+		if whoWin(b) == cell(xsmarc) {
 			fmt.Println("Xs win!")
 			break
 		}
@@ -239,7 +183,7 @@ func Xsosgame() {
 		}
 		osturn(b)
 		drawBoard(b)
-		if checkOsWin(b) {
+		if whoWin(b) == cell(osmarc) {
 			fmt.Println("Os win!")
 			break
 		}
