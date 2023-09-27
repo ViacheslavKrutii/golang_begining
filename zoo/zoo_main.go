@@ -1,9 +1,6 @@
 package zoo
 
-import (
-	"Proj/HomeWork/golang_structs/zoo"
-	"fmt"
-)
+import "fmt"
 
 func zoo_main() {
 	animalList := map[string][]string{
@@ -15,10 +12,10 @@ func zoo_main() {
 		"Monkey":   {"Kevin"},
 	}
 
-	animals := zoo.CreateAnimalsFromMap(animalList)
-	jails := zoo.CreateJailsFromMap(animalList)
-	George := zoo.Zookeeper{Name: "George"}
-	kpiZoo := zoo.Zoo{Name: "KPI Zoo", Zookeeper: George, Animals: animals, Jails: jails}
+	animals := CreateAnimalsFromMap(animalList)
+	jails := CreateJailsFromMap(animalList)
+	George := Zookeeper{Name: "George"}
+	kpiZoo := Zoo{Name: "KPI Zoo", Zookeeper: George, Animals: animals, Jails: jails}
 	fmt.Printf("В зоопарку %s, %d пустих кліток і %d тварин на волі.\n", kpiZoo.Name, len(jails), len(animals))
 	for i, v := range animals {
 		George.Imprison(&v, &jails[i])
