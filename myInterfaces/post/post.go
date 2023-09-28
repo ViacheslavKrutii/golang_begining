@@ -1,4 +1,4 @@
-package myinterfaces
+package mypost
 
 type content struct {
 }
