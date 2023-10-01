@@ -1,9 +1,8 @@
 package main
 
-import (
-	mapgame "Proj/HomeWork/golang_begining/mapGame"
-)
+import mytransport "Proj/HomeWork/golang_begining/myInterfaces/transport"
 
 func main() {
-	mapgame.Xsosgame()
+
+	mytransport.Travel("Ivan", []mytransport.City{"Kyiv", "London", "Paris"})
 }

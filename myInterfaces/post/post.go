@@ -31,14 +31,12 @@ func (b box) send(from, to string) Parcel {
 }
 
 func sortSection(p Parcel, b, e chan Parcel) {
-	p, ok := p.(box)
-	if ok {
-		b <- p
+	switch v := p.(type) {
+	case box:
+		b <- v
 		return
-	}
-	p, ok = p.(envelope)
-	if ok {
-		e <- p
+	case envelope:
+		e <- v
 		return
 	}
 }
