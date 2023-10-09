@@ -1,8 +1,9 @@
 package main
 
-import mytransport "Proj/HomeWork/golang_begining/myInterfaces/transport"
+import "Proj/HomeWork/golang_begining/grtns"
 
 func main() {
-
-	mytransport.Travel("Ivan", []mytransport.City{"Kyiv", "London", "Paris"})
+	// grtns.Grtns()
+	// time.Sleep(30 * time.Second)
+	grtns.MinMaxMain()
 }
