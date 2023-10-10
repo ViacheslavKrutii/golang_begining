@@ -3,11 +3,9 @@ package grtns
 import (
 	"fmt"
 	"math/rand"
-	"sync"
 )
 
-func createRandNumToChan(n float32, ch1 chan float32, wg *sync.WaitGroup) {
-	defer wg.Done()
+func createRandNumToChan(n float32, ch1 chan float32) {
 	var i float32
 	for i = 0.0; i < n; i++ {
 		num := rand.Intn(10)
@@ -18,8 +16,7 @@ func createRandNumToChan(n float32, ch1 chan float32, wg *sync.WaitGroup) {
 	close(ch1)
 }
 
-func avarageNum(ch1, ch2 chan float32, wg *sync.WaitGroup) {
-	defer wg.Done()
+func avarageNum(ch1, ch2 chan float32) {
 	var sum float32
 	sum = 0.0
 	var i float32
@@ -32,11 +29,11 @@ func avarageNum(ch1, ch2 chan float32, wg *sync.WaitGroup) {
 		ch2 <- avg
 
 	}
+	close(ch2)
 
 }
 
-func printRandNum(ch2 chan float32, wg *sync.WaitGroup) {
-	defer wg.Done()
+func printRandNum(ch2 chan float32) {
 	for avg := range ch2 {
 		fmt.Println("avg", avg)
 
@@ -47,9 +44,9 @@ func printRandNum(ch2 chan float32, wg *sync.WaitGroup) {
 func Grtns() {
 	ch1 := make(chan float32)
 	ch2 := make(chan float32)
-	wg := &sync.WaitGroup{}
-	wg.Add(3)
-	go createRandNumToChan(6, ch1, wg)
-	go avarageNum(ch1, ch2, wg)
-	go printRandNum(ch2, wg)
+
+	go createRandNumToChan(6, ch1)
+	go avarageNum(ch1, ch2)
+	printRandNum(ch2)
+
 }

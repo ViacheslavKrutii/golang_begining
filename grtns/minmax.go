@@ -20,14 +20,15 @@ func generateRandInt(rangeint int) int {
 }
 
 // Перша горутина
-func RandIntToChan(rangeint, n int, ch1 chan int, ch2 chan []int) {
+func randIntToChan(rangeint, n int, ch1 chan int, ch2 chan []int) {
 	for i := 0; i <= n; i++ {
 		num := generateRandInt(rangeint)
 		ch1 <- num
-		minmaxSlice := <-ch2
-		fmt.Printf("min:%d\nmax:%d\n", minmaxSlice[0], minmaxSlice[1])
 	}
-
+	close(ch1)
+	minmaxSlice := <-ch2
+	close(ch2)
+	fmt.Printf("min:%d\nmax:%d\n", minmaxSlice[0], minmaxSlice[1])
 }
 
 // Друга горутина
@@ -45,9 +46,10 @@ func minmax(ch1 chan int, ch2 chan []int) {
 		case num > minmaxSlice[1]:
 			minmaxSlice[1] = num
 		}
-		// Повернення мін макс в першу горутину через канал
-		ch2 <- minmaxSlice
+
 	}
+	// Повернення мін макс в першу горутину через канал
+	ch2 <- minmaxSlice
 
 }
 
@@ -56,17 +58,15 @@ func MinMaxMain() {
 	ch2 := make(chan []int)
 	done := make(chan bool) // Канал для сигналу про завершення
 
-	// Запуск горутини minmax
+	// Запуск горутини randIntToChan
 	go func() {
-		RandIntToChan(100, 10, ch1, ch2)
-		done <- false // Сигнал про завершення горутини RandIntToChan
+		randIntToChan(1000, 10, ch1, ch2)
+		done <- false // Сигнал про завершення горутини randIntToChan
 	}()
 
 	// Запуск горутини minmax
 	go minmax(ch1, ch2)
 
-	// Очікування завершення горутин
 	<-done
-	close(ch1) // Закриття каналів після завершення горутин
-	close(ch2)
+
 }
