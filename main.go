@@ -1,7 +1,7 @@
 package main
 
-import "Proj/HomeWork/golang_begining/concur"
+import "Proj/HomeWork/golang_begining/concurrency"
 
 func main() {
-	concur.ShopProg()
+	concurrency.ShopProg()
 }
