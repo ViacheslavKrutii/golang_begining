@@ -1,9 +1,7 @@
 package main
 
-import "Proj/HomeWork/golang_begining/grtns"
+import "Proj/HomeWork/golang_begining/concur"
 
 func main() {
-	// grtns.Grtns()
-
-	grtns.MinMaxMain()
+	concur.ShopProg()
 }
