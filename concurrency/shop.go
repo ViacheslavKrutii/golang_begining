@@ -10,10 +10,10 @@ import (
 type itemId string
 
 type uerReq struct {
-	name     string
-	item     itemId
-	quantity uint
-	price    uint
+	Name     string `json:"name"`
+	Item     itemId `json:"item"`
+	Quantity uint   `json:"quantity"`
+	Price    uint   `json:"price"`
 }
 type itemsList []string
 
@@ -22,12 +22,12 @@ var Items = itemsList{"phone", "laptop", "keyboard"}
 func RequestGenerator(ctx context.Context, n int, name string, items itemsList, ch1 chan uerReq) {
 	for i := 0; i < n; i++ {
 		newRequest := uerReq{
-			name:     name,
-			item:     itemId(items[rand.Intn(len(items))]),
-			quantity: uint(rand.Intn(5)),
-			price:    uint(rand.Intn(100)),
+			Name:     name,
+			Item:     itemId(items[rand.Intn(len(items))]),
+			Quantity: uint(rand.Intn(5)),
+			Price:    uint(rand.Intn(100)),
 		}
-		fmt.Printf("sum:%d\n", (newRequest.price * newRequest.quantity))
+		fmt.Printf("sum:%d\n", (newRequest.Price * newRequest.Quantity))
 		ch1 <- newRequest
 	}
 	close(ch1)
@@ -36,7 +36,7 @@ func RequestGenerator(ctx context.Context, n int, name string, items itemsList, 
 func ProcessesRequests(ctx context.Context, ch1 chan uerReq) {
 	var total int
 	for newRequest := range ch1 {
-		total += int(newRequest.price * newRequest.quantity)
+		total += int(newRequest.Price * newRequest.Quantity)
 
 	}
 
