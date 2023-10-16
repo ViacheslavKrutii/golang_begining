@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
-	"sync"
 )
 
 type question string
@@ -18,35 +17,47 @@ type answer struct {
 
 type score map[string]int
 
-func roundGen(wg *sync.WaitGroup, questions []string, questionCH chan question) {
-	for i := 0; i < len(questions); i++ {
-		for j := 0; j < 10; j++ {
-			questionCH <- question(questions[i])
+func roundGen(questions []string) chan question {
+	questionCH := make(chan question)
+	go func() {
+		for i := 0; i < len(questions); i++ {
+			for j := 0; j < 10; j++ {
+				questionCH <- question(questions[i])
+			}
+			// <- block1(10 times)
+			// <- unblock2
+
 		}
-		wg.Wait()
+	}()
+
+	return questionCH
+}
+
+func player(ctx context.Context, name string, answerCH chan answer, questionCH chan question) {
+	for {
+		select {
+		case <-questionCH:
+			ansString := strconv.Itoa(rand.Intn(9))
+			playerAns := answer{
+				userId: name,
+				answer: ansString}
+			answerCH <- playerAns
+			// <- unblock1
+			// <- block2
+
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 
-func player(ctx context.Context, wg *sync.WaitGroup, name string, answerCH chan answer, questionCH chan question) {
-	select {
-	case <-questionCH:
-		ansString := strconv.Itoa(rand.Intn(9))
-		playerAns := answer{
-			userId: name,
-			answer: ansString}
-		answerCH <- playerAns
-		wg.Done()
-	case <-ctx.Done():
-		return
-	}
-}
-
-func playerGen(ctx context.Context, wg *sync.WaitGroup, answerCH chan answer, questionCH chan question) {
+func playerGen(ctx context.Context, questionCH chan question) chan answer {
+	answerCH := make(chan answer)
 	for i := 1; i <= 10; i++ {
 
-		go player(ctx, wg, fmt.Sprintf("user%d", i), answerCH, questionCH)
+		go player(ctx, fmt.Sprintf("user%d", i), answerCH, questionCH)
 	}
-	wg.Wait()
+	return answerCH
 }
 
 func counter(correctAnswers map[int]string, answerCH chan answer, scoreCH chan score) {
@@ -60,16 +71,14 @@ func counter(correctAnswers map[int]string, answerCH chan answer, scoreCH chan s
 }
 
 func Program() {
-	correctAnswers := map[int]string{1: "2", 2: "3"}
-	answerCH := make(chan answer)
-	questionCH := make(chan question)
-	scoreCH := make(chan score)
-	wg := &sync.WaitGroup{}
-	wg.Add(10)
-	ctx, cancel := context.WithCancel(context.Background())
 	questions := []string{"1+1", "1+2"}
-	go roundGen(wg, questions, questionCH)
-	go playerGen(ctx, wg, answerCH, questionCH)
+	correctAnswers := map[int]string{1: "2", 2: "3"}
+	ctx, cancel := context.WithCancel(context.Background())
+
+	questionCH := roundGen(questions)
+	answerCH := playerGen(ctx, questionCH)
+	scoreCH := make(chan score)
+
 	go counter(correctAnswers, answerCH, scoreCH)
 
 	for newScore := range scoreCH {
