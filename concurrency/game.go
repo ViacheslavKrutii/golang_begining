@@ -43,8 +43,9 @@ var answersToQuestions = []string{
 }
 
 // recive player, question and chan for answering questions
-func AskRoundQuestion(player Player, question string, answers chan Answer) {
+func AskRoundQuestion(player Player, answers chan Answer, question string) {
 	player.Inbox <- Question{answers, question}
+
 }
 
 // cycle wich recive question from player.inbox (chanal) and give answer
@@ -73,16 +74,26 @@ func SendQuestionsToPlayers(lobby Lobby) chan Answer {
 	// range of all questions
 	for _, question := range questions {
 		// each player ask question from questions
+
 		for _, player := range lobby {
-			go AskRoundQuestion(player, question, answers)
+			go AskRoundQuestion(player, answers, question)
+
 		}
+		time.Sleep(10 * time.Second)
 	}
 
 	return answers
 }
 
-func GatherAnswers(lobby Lobby, answers chan Answer) {
-	newScore := make(score)
+func PrintScore(newScore score) {
+	for key, value := range newScore {
+		fmt.Printf("Player: %s, Points: %d\n", key, value)
+	}
+
+}
+
+func GatherAnswers(lobby Lobby, answers chan Answer, newScore score) {
+
 	for i := range questions {
 		for range lobby {
 			playerAnswer := <-answers
@@ -93,8 +104,8 @@ func GatherAnswers(lobby Lobby, answers chan Answer) {
 				newScore[playerAnswer.Name] += 0
 			}
 
-			fmt.Println(newScore)
 		}
+		PrintScore(newScore)
 	}
 }
 
@@ -105,12 +116,13 @@ func StartRounds(quit chan bool) PlayerCH {
 		defer close(rounds)
 		defer close(quit)
 
+		newScore := make(score)
 		for i := 0; i < ROUND_COUNT; i++ {
 			lobby := AddPlayersToLobby(rounds)
 
 			roundAnswers := SendQuestionsToPlayers(lobby)
 
-			GatherAnswers(lobby, roundAnswers)
+			GatherAnswers(lobby, roundAnswers, newScore)
 
 			fmt.Println(i+1, "round ends!")
 		}
