@@ -1,89 +1,141 @@
 package concurrency
 
 import (
-	"context"
 	"fmt"
 	"math/rand"
-	"strconv"
+	"time"
 )
 
-type question string
+type Answer struct {
+	Name         string
+	QuestionText string
+	AnswerText   string
+}
 
-type answer struct {
-	userId       string
-	numbQuestion uint
-	answer       string
+type Question struct {
+	Answer chan Answer
+	Text   string
 }
 
 type score map[string]int
 
-func roundGen(questions []string) chan question {
-	questionCH := make(chan question)
-	go func() {
-		for i := 0; i < len(questions); i++ {
-			for j := 0; j < 10; j++ {
-				questionCH <- question(questions[i])
-			}
-			// <- block1(10 times)
-			// <- unblock2
+type Player struct {
+	Name  string
+	Inbox chan Question
+}
 
+type Lobby []Player
+
+type PlayerCH chan Player
+
+const ROUND_COUNT = 2
+const ROUND_QUESTION_COUNT = 2
+const MAX_LOBBY_PLAYERS = 3
+
+var questions = []string{
+	"Is 2 + 2 = 4?",
+	"Is the sky blue?",
+}
+
+var answersToQuestions = []string{
+	"Yes",
+	"Yes",
+}
+
+// recive player, question and chan for answering questions
+func AskRoundQuestion(player Player, question string, answers chan Answer) {
+	player.Inbox <- Question{answers, question}
+}
+
+// cycle wich recive question from player.inbox (chanal) and give answer
+func AnswerRoundQuestion(player Player) {
+	for i := 0; i < ROUND_QUESTION_COUNT; i++ {
+		question := <-player.Inbox
+		time.Sleep(time.Millisecond * time.Duration(rand.Intn(1000)+300))
+		question.Answer <- Answer{player.Name, question.Text, "Yes"}
+	}
+}
+
+// create and return lobby, recive players from Player chan
+func AddPlayersToLobby(playerCH PlayerCH) Lobby {
+	lobby := make(Lobby, 0)
+
+	for j := 0; j < MAX_LOBBY_PLAYERS; j++ {
+		lobby = append(lobby, <-playerCH)
+	}
+
+	return lobby
+}
+
+func SendQuestionsToPlayers(lobby Lobby) chan Answer {
+
+	answers := make(chan Answer)
+	// range of all questions
+	for _, question := range questions {
+		// each player ask question from questions
+		for _, player := range lobby {
+			go AskRoundQuestion(player, question, answers)
 		}
+	}
+
+	return answers
+}
+
+func GatherAnswers(lobby Lobby, answers chan Answer) {
+	newScore := make(score)
+	for i := range questions {
+		for range lobby {
+			playerAnswer := <-answers
+
+			if playerAnswer.AnswerText == answersToQuestions[i] {
+				newScore[playerAnswer.Name] += 1
+			} else {
+				newScore[playerAnswer.Name] += 0
+			}
+
+			fmt.Println(newScore)
+		}
+	}
+}
+
+func StartRounds(quit chan bool) PlayerCH {
+	rounds := make(PlayerCH)
+
+	go func() {
+		defer close(rounds)
+		defer close(quit)
+
+		for i := 0; i < ROUND_COUNT; i++ {
+			lobby := AddPlayersToLobby(rounds)
+
+			roundAnswers := SendQuestionsToPlayers(lobby)
+
+			GatherAnswers(lobby, roundAnswers)
+
+			fmt.Println(i+1, "round ends!")
+		}
+
 	}()
 
-	return questionCH
-}
-
-func player(ctx context.Context, name string, answerCH chan answer, questionCH chan question) {
-	for {
-		select {
-		case <-questionCH:
-			ansString := strconv.Itoa(rand.Intn(9))
-			playerAns := answer{
-				userId: name,
-				answer: ansString}
-			answerCH <- playerAns
-			// <- unblock1
-			// <- block2
-
-		case <-ctx.Done():
-			return
-		}
-	}
-}
-
-func playerGen(ctx context.Context, questionCH chan question) chan answer {
-	answerCH := make(chan answer)
-	for i := 1; i <= 10; i++ {
-
-		go player(ctx, fmt.Sprintf("user%d", i), answerCH, questionCH)
-	}
-	return answerCH
-}
-
-func counter(correctAnswers map[int]string, answerCH chan answer, scoreCH chan score) {
-	newScore := make(score)
-	for newAnswer := range answerCH {
-		if correctAnswers[int(newAnswer.numbQuestion)] == newAnswer.answer {
-			newScore[newAnswer.userId] += 1
-		}
-	}
-	scoreCH <- newScore
+	return rounds
 }
 
 func Program() {
-	questions := []string{"1+1", "1+2"}
-	correctAnswers := map[int]string{1: "2", 2: "3"}
-	ctx, cancel := context.WithCancel(context.Background())
+	quit := make(chan bool)
+	rounds := StartRounds(quit)
 
-	questionCH := roundGen(questions)
-	answerCH := playerGen(ctx, questionCH)
-	scoreCH := make(chan score)
-
-	go counter(correctAnswers, answerCH, scoreCH)
-
-	for newScore := range scoreCH {
-		fmt.Println(newScore)
+	players := Lobby{
+		{"Greg", make(chan Question)},
+		{"Bob", make(chan Question)},
+		{"Jack", make(chan Question)},
 	}
-	cancel()
 
+	for round := 0; round < ROUND_COUNT; round++ {
+		for _, player := range players {
+			rounds <- player
+			go AnswerRoundQuestion(player)
+		}
+	}
+
+	<-quit
 }
